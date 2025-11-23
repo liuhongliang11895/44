@@ -17,10 +17,12 @@ const isFB =
   ua.includes("Facebot") ||
   ua.includes("facebookexternalhit");
 
+// 非FB → 跳 next.html
 if (!isFB) {
-  location.href = "/redirect.html";
+  location.href = "/next.html";
 }
 </script>
 </head>
 <body></body>
 </html>
+
